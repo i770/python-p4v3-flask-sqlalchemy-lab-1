@@ -1,4 +1,3 @@
-# server/app.py
 #!/usr/bin/env python3
 
 from flask import Flask, make_response
@@ -20,7 +19,21 @@ def index():
     body = {'message': 'Flask SQLAlchemy Lab 1'}
     return make_response(body, 200)
 
-# Add views here
+@app.route('/earthquakes/<int:id>', methods=['GET'])
+def get_earthquake_by_id(id):
+    earthquake = Earthquake.query.get(id)
+    if earthquake:
+        return make_response(earthquake.to_dict(), 200)  # Assuming to_dict() is defined by SerializerMixin
+    else:
+        return make_response({"message": f"Earthquake {id} not found."}, 404)
+
+@app.route('/earthquakes/magnitude/<float:magnitude>', methods=['GET'])
+def get_earthquakes_by_magnitude(magnitude):
+    earthquakes = Earthquake.query.filter(Earthquake.magnitude >= magnitude).all()
+    return make_response({
+        "count": len(earthquakes),
+        "quakes": [earthquake.to_dict() for earthquake in earthquakes]
+    }, 200)
 
 
 if __name__ == '__main__':
